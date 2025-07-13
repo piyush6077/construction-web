@@ -4,13 +4,13 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-interface IAuth extends Document {
+export interface IAuth extends Document {
     _id: mongoose.Types.ObjectId;
     username: string;
     password: string;
     email: string;
     role: 'admin' | 'user';
-    comparePassword(candidatePassword: string): Promise<boolean>;
+    isPasswordValid(candidatePassword: string): Promise<boolean>;
     securityCode?: string | null
     generateJWToken(): Promise<string>;
 }
