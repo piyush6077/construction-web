@@ -66,12 +66,10 @@ export const UserLogin = async(req: Request , res: Response): Promise<any> => {
         }
 
         const options: {
-            expires: Date;
             httpOnly: boolean;
             secure: boolean;
             sameSite: 'strict' | 'lax' | 'none';
         } = {
-            expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), 
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict'
@@ -84,6 +82,53 @@ export const UserLogin = async(req: Request , res: Response): Promise<any> => {
 
     } catch (error: string | any) {
         console.error(`Error creating user: ${error.message}`);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+//req data 
+//check if the user exists
+//ispassword correct for the particular account
+//generate token
+//send token in cookie
+//send response with user data and token
+
+export const UserLogout = async(req: Request , res: Response): Promise<any> => {
+    try {
+        const options: {
+            httpOnly: boolean;
+            secure: boolean;
+            sameSite: 'strict' | 'lax' | 'none';
+        } = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        } 
+        return res
+        .cookie('token',{},options)
+        .status(200)
+        .json({ message: 'Logout successful'});
+    } catch (error: string | any) {
+        console.error(`Error logging out user: ${error.message}`);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export const getUserProfile = async(req: Request , res: Response): Promise<any> => {
+    try {
+        const userId = req.user?._id; 
+        if (!userId) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const user = await Auth.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ user });
+    } catch (error: string | any) {
+        console.error(`Error fetching user profile: ${error.message}`);
         res.status(500).json({ message: 'Internal server error' });
     }
 }
